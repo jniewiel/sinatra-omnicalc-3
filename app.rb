@@ -6,7 +6,7 @@ require "json"
 # --------------------------------------- #
 
 get("/") do
-  redirect(:process_umbrella)
+  redirect(:umbrella)
 end
 
 # --------------------------------------- #
@@ -20,38 +20,13 @@ end
 post("/process_umbrella") do
   @location = params.fetch("user_location").to_s
 
-  require "http"
-  require "json"
+  gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=Merchandise%20Mart%20Chicago&key=#{ENV["GMAPS_KEY"]}"
 
-  request_headers_hash = {
-    "Authorization" => "Bearer #{ENV.fetch("SINATRA_OPENAI_KEY")}",
-    "content-type" => "application/json",
-  }
+  @raw_response = HTTP.get(gmaps_url).to_s
 
-  request_body_hash = {
-    "model" => "gpt-3.5-turbo",
-    "messages" => [
-      {
-        "role" => "system",
-        "content" => "You are a helpful assistant who talks like Shakespeare.",
-      },
-      {
-        "role" => "user",
-        "content" => "Hello! What are the best spots for pizza in Chicago?",
-      },
-    ],
-  }
+  @parsed_response = JSON.parse(@raw_response)
 
-  request_body_json = JSON.generate(request_body_hash)
-
-  raw_response = HTTP.headers(request_headers_hash).post(
-    "https://api.openai.com/v1/chat/completions",
-    :body => request_body_json,
-  ).to_s
-
-  @parsed_response = JSON.parse(raw_response)
-
-  erb(:process_umbrella)
+  erb(:umbrella_results)
 end
 
 # --------------------------------------- #
