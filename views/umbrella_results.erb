@@ -1,14 +1,18 @@
 <h1>Should I take an umbrella?</h1>
 
+<%= @parsed_response_gmaps %>
+
 <dl>
   <dt>User location</dt>
-  <dd><%= @raw_response %></dd>
+  <dd><%= @user_location %></dd>
 
   <dt>Latitude</dt>
-  <dd>41.8781136</dd>
+  <dd><%= @lat %></dd>
 
   <dt>Longitude</dt>
-  <dd>-87.6297982</dd>
+  <dd><%= @lng %></dd>
+
+  <%= @parsed_response_pirate %>
 
   <dt>Current temperature</dt>
   <dd>33.98</dd>

@@ -18,13 +18,25 @@ end
 # --------------------------------------- #
 
 post("/process_umbrella") do
-  @location = params.fetch("user_location").to_s
+  @user_location = params.fetch("user_location")
 
-  gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=Merchandise%20Mart%20Chicago&key=#{ENV["GMAPS_KEY"]}"
+  url_encoded_string = @user_location.gsub(" ", "+")
 
-  @raw_response = HTTP.get(gmaps_url).to_s
+  gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=#{url_encoded_string}&key=#{ENV["GMAPS_KEY"]}"
 
-  @parsed_response = JSON.parse(@raw_response)
+  @raw_response_gmaps = HTTP.get(gmaps_url).to_s
+
+  @parsed_response_gmaps = JSON.parse(@raw_response)
+
+  @lat = @parsed_response_gmaps["results"][0]["geometry"]["location"]["lat"]
+
+  @lng = @parsed_response_gmaps["results"][0]["geometry"]["location"]["lng"]
+
+  pirate_url = "https://api.pirateweather.net/forecast/#{ENV["PIRATE_WEATHER_KEY"]}/#{@lat},#{@lng}"
+
+  @raw_response_pirate = HTTP.get(pirate_url).to_s
+
+  @parsed_response_pirate = JSON.parse(@raw_response_pirate)
 
   erb(:umbrella_results)
 end
